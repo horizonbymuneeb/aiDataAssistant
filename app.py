@@ -5,9 +5,16 @@ from apiKey import apiKey
 import streamlit as st
 import pandas as pd
 
-from langchain.llms import OpenAI
+from langchain_openai import OpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from dotenv import load_dotenv, find_dotenv
+
+# openai key
+os.environ["OPENAI_API_KEY"] = apiKey
+load_dotenv(find_dotenv())
+
+
+llm = OpenAI(temperature=0)
 
 
 #Main
@@ -21,10 +28,7 @@ with st.sidebar:
     st.caption('''*You may already know that every exciting data science journey starts with a dataset. That's why I'd love for you to upload a CSV file. Once we have your data in hand, we'll dive into understanding it and have some fun exploring it. Then, we'll work together to shape your business challenge into a data science framework. I'll introduce you to the coolest machine learning models, and we'll use them to tackle your problem.
     Sounds fun right*''')
 
-    with st.expander("THIS IS HOW IT WORKS"):
-        st.write("1. Upload your CSV file")
-        st.write("2. Ask your question")
-        st.write("3. Get the answer")
+
 
     st.divider()
 
@@ -47,6 +51,13 @@ if st.session_state.clicked[1]:
     if user_csv is not None:
         user_csv.seek(0)
         df = pd.read_csv(user_csv, low_memory=False)
+
+with st.sidebar:
+    with st.expander("Steps of EDA"):
+        st.write(llm("What are the steps of EDA?"))
+
+
+   
         
 
 
