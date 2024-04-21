@@ -2,6 +2,9 @@
 import os
 from apiKey import apiKey
 
+import scipy
+import matplotlib.pyplot as plt
+
 import streamlit as st
 import pandas as pd
 
@@ -75,7 +78,31 @@ if st.session_state.clicked[1]:
             new_feature_df = pandas_agent.run("What new features would be interesting to add?")
             st.write(new_feature_df)
             return
+        
 
+        @st.cache_data
+        def function_question_variable():
+            st.line_chart(df,y=[user_question_variable])
+            summary_statistics = pandas_agent.run("Give me the summary of the statistics of {user_question_variable}")
+            st.write(summary_statistics)
+            normality_test = pandas_agent.run("check the normality or specific distribution of the {user_question_variable}")
+            st.write(normality_test)
+            outliers = pandas_agent.run("Access the presence of outliers in the {user_question_variable}")
+            st.write(outliers)
+            trends = pandas_agent.run("analyse treends , sesonality and residuals of the {user_question_variable}")
+            st.write(trends)
+            missing_values = pandas_agent.run("Determine the extent of missing values in the {user_question_variable}")
+            st.write(missing_values)
+            return
+        
+       
+        def function_question_dataframe():
+            dataframe_info = pandas_agent.run(user_question_dataframe)
+            st.write(dataframe_info)
+            return
+        
+
+        #main
         st.header("Exploratory Data Analysis")
         st.subheader("General Information about the dataset")
 
@@ -87,5 +114,19 @@ if st.session_state.clicked[1]:
         function_agent()
 
 
+        st.header("Variable of Study")
+        user_question_variable = st.text_input("What variable you intersted in?")
+        if user_question_variable is not None and user_question_variable != "":
 
-        user_question = st.text_input("What variable you intersted in?")
+            function_question_variable()
+
+            st.subheader('Further Study')
+
+        if user_question_variable:
+            user_question_dataframe = st.text_input("Is ther anything elese you would like to know about the datafram?")
+            if user_question_dataframe is not None and user_question_dataframe not in ["", "No", "no"]:
+                function_question_dataframe()
+
+            if user_question_dataframe is ("No" or "no"):
+                st.write("Thank you for using the AI assistant. If you have any questions, please feel free to ask.")
+            
