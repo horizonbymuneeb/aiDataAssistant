@@ -13,8 +13,8 @@ from dotenv import load_dotenv, find_dotenv
 #Main
 st.title("AI Assistance for Data Science 🤖")
 st.write("This AI assistant can help you with data analysis.👋 Please input your data and the question you have in mind.")
-st.header("Data Analysis Part")
-st.subheader("Solution")
+
+
 
 with st.sidebar:
     st.write('*Your Data Science Adventure Begins with an CSV File.*')
@@ -29,7 +29,18 @@ with st.sidebar:
     st.divider()
 
     st.caption("<p style = 'text-align:center'> Made with love ♥️ by Muneeb </p>", unsafe_allow_html=True)
-    
 
+if 'clicked' not in st.session_state:
+    st.session_state.clicked = {1:False}
 
+#function to update vaue in session state
+def clicked(button):
+    st.session_state.clicked[button] = True
+
+st.button("Let's get started!", on_click=clicked, args=(1,))
+if st.session_state.clicked[1]:
+    st.header("Data Analysis Part")
+    st.subheader("Solution")
+
+    user_csv = st.file_uploader("Upload your CSV file", type=["csv"])
 
