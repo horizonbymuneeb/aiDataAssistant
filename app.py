@@ -44,3 +44,10 @@ if st.session_state.clicked[1]:
 
     user_csv = st.file_uploader("Upload your CSV file", type=["csv"])
 
+    if user_csv is not None:
+        user_csv.seek(0)
+        df = pd.read_csv(user_csv, low_memory=False)
+        
+
+
+
