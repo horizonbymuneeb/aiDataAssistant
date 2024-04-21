@@ -57,8 +57,28 @@ with st.sidebar:
         st.write(llm("What are the steps of EDA?"))
 
 
-   
-        
+pandas_agent = create_pandas_dataframe_agent(llm,df, verbose=True)
+def function_agent():
+    st.write("**Data Overview**")
+    st.write("The first row of the dataset looks like this:")
+    st.write(df.head())
+    st.write("**Data Cleaning**")
+    column_df = pandas_agent.run("What are the meaning of the columns?")
+    st.write(column_df)
+    missing_values_df = pandas_agent.run("What are the missing values in the dataset?")
+    st.write(missing_values_df)
+    duplicate_values_df = pandas_agent.run("What are the duplicate values in the dataset?")
+    st.write(duplicate_values_df)
+    st.write("**Data Summarisation**")
+    st.write(df.describe())
+    correlation_df = pandas_agent.run("What are the correlation values in the dataset?")
+    st.write(correlation_df)
+    outlier_df = pandas_agent.run("Identify the outliers in the dataset")
+    st.write(outlier_df)
+    new_feature_df = pandas_agent.run("What new features would be interesting to add?")
+    st.write(new_feature_df)
+    return
 
+function_agent()
 
 
