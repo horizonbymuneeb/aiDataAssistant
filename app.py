@@ -165,7 +165,9 @@ if st.session_state.clicked[1]:
                 tool=PythonREPLTool(),
                 verbose=True,
                 agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-                handle_parsing_errors=True
+                handle_parsing_errors=True,
+                max_iterations=50
+                
             )
             return agent_executor
         
