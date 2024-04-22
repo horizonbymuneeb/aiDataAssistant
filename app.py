@@ -1,7 +1,7 @@
 #Imporing libraries
 import os
 from apiKey import apiKey
-
+import pickle
 import scipy
 import matplotlib.pyplot as plt
 
@@ -130,21 +130,40 @@ if st.session_state.clicked[1]:
             )
             return data_problem_template, model_selection_template
 
-        @st.cache_resource
-        def chains():
+        import ssl
+
+        # Define a custom hash function for ssl.SSLContext
+        def hash_SSLContext(obj):
+            return id(obj)
+
+        # Define the function to create the SequentialChain object
+        def create_chains():
             data_problem_chain = LLMChain(llm=llm, prompt=prompt_templates()[0], verbose=True, output_key='data_problem')
             model_selection_chain = LLMChain(llm=llm, prompt=prompt_templates()[1], verbose=True, output_key='model_selection')
             sequential_chain = SequentialChain(chains=[data_problem_chain, model_selection_chain], input_variables=['business_problem', 'wikipedia_research'], output_variables=['data_problem', 'model_selection'], verbose=True)
             return sequential_chain
 
-        @st.cache_resource 
+        # Cache the SequentialChain object directly with custom hash function for ssl.SSLContext
+        @st.cache(hash_funcs={ssl.SSLContext: hash_SSLContext}, allow_output_mutation=True)
+        def cached_chains():
+            return create_chains()
+
+        # Serialize the cached object
+        serialized_object = pickle.dumps(cached_chains())
+
+        # Optionally, write the serialized data to a file
+        with open('serialized_chains_object.pkl', 'wb') as f:
+            f.write(serialized_object)
+
+        # Define a function that uses the cached object
+        @st.cache
         def chains_output(prompt, wiki_research):
-            my_chain = chains()
+            my_chain = cached_chains()
             my_chain_output = my_chain({'business_problem': prompt, 'wikipedia_research': wiki_research})
             my_data_problem = my_chain_output["data_problem"]
             my_model_selection = my_chain_output["model_selection"]
             return my_data_problem, my_model_selection
-        
+                
         @st.cache_data
         def list_to_selectbox(my_model_selection_input):
             algorithm_lines = my_model_selection_input.split('\n')
@@ -161,6 +180,8 @@ if st.session_state.clicked[1]:
                 verbose=True,
                 agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
                 handle_parsing_errors=True,
+                max_execution_time=240,
+                max_iterations=120,
                 handle_execution_errors=True
             )
             return agent_executor
